@@ -3,7 +3,7 @@ import win32gui
 import win32con
 from PIL import Image
 
-# TODO decide whether to crop to red letters and expand or grey sqaure
+# TODO decide whether to crop to red letters and expand or grey sqaure #
 BOX_COLOR = (198,198,198,255) #"c6c6c6"
 BOX_COLOR = (128,128,128,255) #"c6c6c6"
 #BOX_COLOR = (255,0,0,255) #find red letters (test)
