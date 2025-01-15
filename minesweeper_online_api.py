@@ -3,18 +3,18 @@ import pyautogui
 import numpy as np
 
 class MineSweeperOnlineAPI():
-    COLOR_DICT = { ##TODO fill in placeholder colors
+    COLOR_DICT = { 
         (198,198,198,255) : 0,  # zero neighboring mines
         (0,0,247,255) : 1,  # one neighboring mine
         (0,119,0,255) : 2,  # etc.
         (236,0,0,255) : 3,
         (0,0,128,255) : 4,
-        (0,0,0,255) : 5,
-        (0,0,0,255) : 6,
+        (128,0,0,255) : 5,
+        (0,128,128,255) : 6,
         (0,0,0,255) : 7,
-        (0,0,0,255) : 8,
+        (112,112,112,255) : 8,
         (255,255,255,255): -1,
-        (0,0,0,255) : -2  #flag cell
+        (0,0,0,255) : -2  #TODO flag cell PLACEHOLDER
     }
     def get_info(self, window_id):
         """
@@ -146,7 +146,7 @@ class MineSweeperOnlineAPI():
         self.board = np.full((self.width, self.height), -1)
         self.cell_size = board_info["cell_size"]
 
-    def get_update(self):
+    def get_update(self): # TODO fix bugs
         left,top,right,bottom = win32gui.GetWindowRect(self.window_id)
         if self.window_dimensions != (left,top,right,bottom):
             raise ValueError("Window, position/size changed.")
@@ -156,12 +156,22 @@ class MineSweeperOnlineAPI():
 
         for i in range(self.height):
             for j in range(self.width):
-                x, y = self.cell_coords[y][x]
-                cell = self.COLOR_DICT[pixels[x,y]]
+                x, y = self.cell_coords[i][j]
+                l,t,r,b = self.window_dimensions
+                x -= l
+                y -= t
+                try:
+                    cell = self.COLOR_DICT[pixels[x,y]]
+                except:
+                    print(i,j)
                 if cell == 0:
-                    x -= (self.cell_size * 7) // 16 # look for white half a cell left
-                    if self.COLOR_DICT[pixels[x,y]] == -1: # TODO test
-                        cell = -1
+                    x -= (self.cell_size[0] * 7) // 16 # look for white half a cell left
+                    try:
+                        if self.COLOR_DICT[pixels[x,y]] == -1: # TODO test
+                            cell = -1
+                    except:
+                        print(i,j)
+
 
                 prev_cell = self.board[i,j]
                 if cell == -1:
