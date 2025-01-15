@@ -21,8 +21,10 @@ class Game():
         self.board = self.api.get_update()
         self.solver.update(self.board)
 
-    def move(self):
+    def move(self, x = None, y = None):
         """Performs the next move"""
-        x, y = self.solver.get_move()
+        #if not x and not y:
+        #    x, y = self.solver.get_move()
+        print(x,y)
         self.api.do_move(x,y)
         

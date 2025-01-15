@@ -4,19 +4,19 @@ import numpy as np
 
 class MineSweeperOnlineAPI():
     COLOR_DICT = { ##TODO fill in placeholder colors
-        (1,3,3,7) : 0,  # zero neighboring mines
-        (1,3,3,7) : 1,  # one neighboring mine
-        (1,3,3,7) : 2,  # etc.
-        (1,3,3,7) : 3,
-        (1,3,3,7) : 4,
-        (1,3,3,7) : 5,
-        (1,3,3,7) : 6,
-        (1,3,3,7) : 7,
-        (1,3,3,7) : 8,
-        (1,3,3,7) : -1, #unknowm cell 
-        (1,3,3,7) : -2  #flag cell
+        (198,198,198,255) : 0,  # zero neighboring mines
+        (0,0,247,255) : 1,  # one neighboring mine
+        (0,119,0,255) : 2,  # etc.
+        (236,0,0,255) : 3,
+        (0,0,128,255) : 4,
+        (0,0,0,255) : 5,
+        (0,0,0,255) : 6,
+        (0,0,0,255) : 7,
+        (0,0,0,255) : 8,
+        (255,255,255,255): -1,
+        (0,0,0,255) : -2  #flag cell
     }
-    def get_board_info(window_id):
+    def get_info(self, window_id):
         """
         Finds info of the board.
 
@@ -121,10 +121,10 @@ class MineSweeperOnlineAPI():
         y_step = (board_info["bottom"] - board_info["top"]) / vertical_cells
 
         cells = []
-        y = board_info["top"] + y_step/2
+        y = board_info["top"] + y_step//2
         for i in range(vertical_cells): # TODO check for off by one
             row = []
-            x = board_info["left"] + x_step/2
+            x = board_info["left"] + x_step//2
             for j in range(horizontal_cells): # TODO check for off by one
                 row.append((x+left,y+top))
                 x += x_step
@@ -132,6 +132,7 @@ class MineSweeperOnlineAPI():
             y += y_step
         
         board_info["cells"] = cells
+        board_info["cell_size"] = (x_step, y_step)
 
         return board_info
     
@@ -143,6 +144,7 @@ class MineSweeperOnlineAPI():
         self.cell_coords = board_info["cells"]
         self.window_dimensions = win32gui.GetWindowRect(window_id)
         self.board = np.full((self.width, self.height), -1)
+        self.cell_size = board_info["cell_size"]
 
     def get_update(self):
         left,top,right,bottom = win32gui.GetWindowRect(self.window_id)
@@ -154,8 +156,17 @@ class MineSweeperOnlineAPI():
 
         for i in range(self.height):
             for j in range(self.width):
-                cell = self.COLOR_DICT[pixels[i,j]]
-                if self.board[i,j] == -1:
+                x, y = self.cell_coords[y][x]
+                cell = self.COLOR_DICT[pixels[x,y]]
+                if cell == 0:
+                    x -= (self.cell_size * 7) // 16 # look for white half a cell left
+                    if self.COLOR_DICT[pixels[x,y]] == -1: # TODO test
+                        cell = -1
+
+                prev_cell = self.board[i,j]
+                if cell == -1:
+                    continue
+                elif self.board[i,j] == -1:
                     self.board[i,j] = cell
                 elif self.board[i,j] != cell:
                     raise ValueError("Immutable board cell changed")
@@ -163,9 +174,9 @@ class MineSweeperOnlineAPI():
         return self.board # return updated board
 
     def do_move(self, x,y):
-        left = self.window_dimensions[0]
-        top = self.window_dimensions[1]
-        x,y = self.cell_coords[x,y]
+        #left = self.window_dimensions[0]
+        #top = self.window_dimensions[1]
+        x,y = self.cell_coords[y][x]
         
-        pyautogui.moveTo(x+left, y+top, 1) # 1 for 1 second delay
+        pyautogui.moveTo(x, y, 1) # 1 for 1 second delay
         pyautogui.click()

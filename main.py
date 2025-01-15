@@ -24,3 +24,8 @@ else:
     raise ValueError("Minesweeper not found.")
 
 game = Game(window_id=window_id, version="minesweeperonline")
+
+game.move(0,0)
+game.move(1,1)
+game.move(2,2)
+
