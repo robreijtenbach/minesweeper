@@ -16,6 +16,9 @@ class Game():
         self.board = np.full((self.width, self.height), -1)
         self.solver = solver
 
+    def start(self):
+        self.api.start()
+
     def update(self):
         """Updates the cells of the board"""
         self.board = self.api.get_update()
